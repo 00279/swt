@@ -8,6 +8,7 @@ import {
   Stack,
   Button,
   Center,
+  Select,
 } from "@chakra-ui/react";
 import "./App.css";
 import { useUnit } from "effector-react";
@@ -21,6 +22,8 @@ function App() {
   const pay = useUnit(model.pay);
   const isEmbedded = useUnit(model.$isEmbedded);
   const changeIsEmbedded = useUnit(model.changeIsEmbedded);
+  const target = useUnit(model.$target);
+  const changeTarget = useUnit(model.changeTarget);
 
   return (
     <>
@@ -35,6 +38,13 @@ function App() {
               <FormControl>
                 <FormLabel>backUrl</FormLabel>
                 <Input type="text" value={backUrl} onChange={changeBackUrl} />
+              </FormControl>
+              <FormControl>
+                <FormLabel>target</FormLabel>
+                <Select value={target} onChange={changeTarget}>
+                  <option value='IFT'>IFT</option>
+                  <option value='UAT'>UAT</option>
+                </Select>
               </FormControl>
               <FormControl display="flex" alignItems="center">
                 <FormLabel htmlFor="isEmbedded" mb="0">

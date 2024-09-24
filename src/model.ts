@@ -1,16 +1,24 @@
-import { createWidget, WidgetParams } from "@sber-ecom-core/sberpay-widget";
-import { createEffect, createEvent, createStore, sample } from "effector";
-import { ChangeEvent } from "react";
+import { createWidget, WidgetParams } from '@sber-ecom-core/sberpay-widget';
+import { createEffect, createEvent, createStore, sample } from 'effector';
+import { ChangeEvent } from 'react';
+import { persist } from 'effector-storage/local';
 
+type TargetTypes = 'IFT' | 'UAT';
 const changeOrderId = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeBackUrl = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeIsEmbedded = createEvent<ChangeEvent<HTMLInputElement>>();
+const changeTarget = createEvent<ChangeEvent<HTMLSelectElement>>();
 
 const pay = createEvent();
 
-const $orderId = createStore("");
-const $backUrl = createStore("");
+const $orderId = createStore('');
+const $backUrl = createStore('');
 const $isEmbedded = createStore(true);
+const $target = createStore<TargetTypes>('IFT');
+
+persist({ store: $target, key: 'target' });
+persist({ store: $isEmbedded, key: 'isEmbedded' });
+persist({ store: $backUrl, key: 'backUrl' });
 
 sample({
   clock: changeOrderId,
@@ -30,10 +38,19 @@ sample({
   target: $isEmbedded,
 });
 
-const createWidgetFx = createEffect(() => createWidget("IFT"));
+sample({
+  clock: changeTarget,
+  fn: (event) => event.target.value as TargetTypes,
+  target: $target,
+});
+
+const createWidgetFx = createEffect((target: TargetTypes) =>
+  createWidget(target)
+);
 
 sample({
   clock: pay,
+  source: $target,
   target: createWidgetFx,
 });
 
@@ -41,7 +58,7 @@ type SberpayWidgetParams = WidgetParams & { isIframe: boolean };
 type SberpayWidget = {
   open: (
     params: SberpayWidgetParams
-  ) => Promise<"success" | "return" | "cancel">;
+  ) => Promise<'success' | 'return' | 'cancel'>;
   close?: () => void;
 };
 
@@ -77,8 +94,10 @@ export const model = {
   changeOrderId,
   changeBackUrl,
   changeIsEmbedded,
+  changeTarget,
   $orderId,
   $backUrl,
   $isEmbedded,
+  $target,
   pay,
 };
