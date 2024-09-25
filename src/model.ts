@@ -54,7 +54,7 @@ sample({
   target: createWidgetFx,
 });
 
-type SberpayWidgetParams = WidgetParams & { isIframe: boolean };
+type SberpayWidgetParams = WidgetParams & { isEmbedded: boolean };
 type SberpayWidget = {
   open: (
     params: SberpayWidgetParams
@@ -74,7 +74,7 @@ const openWidgetFx = createEffect(
     widget.open({
       bankInvoiceId: orderId,
       backUrl,
-      isIframe: isEmbedded,
+      isEmbedded,
     })
 );
 
