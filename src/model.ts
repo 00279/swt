@@ -1,13 +1,21 @@
-import { createWidget, WidgetParams } from '@sber-ecom-core/sberpay-widget';
+import {
+  createWidget as createWidget035,
+  WidgetParams as WidgetParams035,
+} from 'spay-0.3.5';
+import {
+  createWidget as createWidget037,
+} from 'spay-0.3.7';
 import { createEffect, createEvent, createStore, sample } from 'effector';
 import { ChangeEvent } from 'react';
 import { persist } from 'effector-storage/local';
 
 type TargetTypes = 'IFT' | 'UAT';
+type LibraryVersions = '035' | '037';
 const changeOrderId = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeBackUrl = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeIsEmbedded = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeTarget = createEvent<ChangeEvent<HTMLSelectElement>>();
+const changeLibraryVersion = createEvent<ChangeEvent<HTMLSelectElement>>();
 
 const pay = createEvent();
 
@@ -15,10 +23,12 @@ const $orderId = createStore('');
 const $backUrl = createStore('');
 const $isEmbedded = createStore(true);
 const $target = createStore<TargetTypes>('IFT');
+const $libraryVersion = createStore<LibraryVersions>('035');
 
 persist({ store: $target, key: 'target' });
 persist({ store: $isEmbedded, key: 'isEmbedded' });
 persist({ store: $backUrl, key: 'backUrl' });
+persist({ store: $libraryVersion, key: 'libraryVersion' });
 
 sample({
   clock: changeOrderId,
@@ -44,17 +54,34 @@ sample({
   target: $target,
 });
 
-const createWidgetFx = createEffect((target: TargetTypes) =>
-  createWidget(target)
+sample({
+  clock: changeLibraryVersion,
+  fn: (event) => event.target.value as LibraryVersions,
+  target: $libraryVersion,
+});
+
+const widgetMap = {
+  '035': createWidget035,
+  '037': createWidget037,
+};
+
+const createWidgetFx = createEffect(
+  ({
+    target,
+    libraryVersion,
+  }: {
+    target: TargetTypes;
+    libraryVersion: LibraryVersions;
+  }) => widgetMap[libraryVersion](target)
 );
 
 sample({
   clock: pay,
-  source: $target,
+  source: { target: $target, libraryVersion: $libraryVersion },
   target: createWidgetFx,
 });
 
-type SberpayWidgetParams = WidgetParams & { isEmbedded: boolean };
+type SberpayWidgetParams = WidgetParams035 & { isEmbedded: boolean };
 type SberpayWidget = {
   open: (
     params: SberpayWidgetParams
@@ -95,9 +122,11 @@ export const model = {
   changeBackUrl,
   changeIsEmbedded,
   changeTarget,
+  changeLibraryVersion,
   $orderId,
   $backUrl,
   $isEmbedded,
   $target,
+  $libraryVersion,
   pay,
 };

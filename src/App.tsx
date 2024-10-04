@@ -25,6 +25,8 @@ function App() {
   const changeIsEmbedded = useUnit(model.changeIsEmbedded);
   const target = useUnit(model.$target);
   const changeTarget = useUnit(model.changeTarget);
+  const libraryVersion = useUnit(model.$libraryVersion);
+  const changeLibraryVersion = useUnit(model.changeLibraryVersion);
 
   return (
     <>
@@ -32,6 +34,13 @@ function App() {
         <Card width='100%' maxWidth='500px'>
           <CardBody>
             <Stack spacing={3}>
+              <FormControl>
+                <FormLabel>library version</FormLabel>
+                <Select value={libraryVersion} onChange={changeLibraryVersion}>
+                  <option value='035'>0.3.5</option>
+                  <option value='037'>0.3.7</option>
+                </Select>
+              </FormControl>
               <FormControl>
                 <FormLabel>orderId</FormLabel>
                 <Input type='text' value={orderId} onChange={changeOrderId} />
