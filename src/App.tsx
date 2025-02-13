@@ -23,6 +23,10 @@ function App() {
   const pay = useUnit(model.pay);
   const isEmbedded = useUnit(model.$isEmbedded);
   const changeIsEmbedded = useUnit(model.changeIsEmbedded);
+  const changeFinishPageTimeOut = useUnit(model.changeFinishPageTimeOut);
+  const finishPageTimeOut = useUnit(model.$finishPageTimeOut);
+  const isFinishPage = useUnit(model.$isFinishPage);
+  const changeIsFinishPage = useUnit(model.changeIsFinishPage);
   const target = useUnit(model.$target);
   const changeTarget = useUnit(model.changeTarget);
   const libraryVersion = useUnit(model.$libraryVersion);
@@ -64,6 +68,26 @@ function App() {
                   id='isEmbedded'
                   isChecked={isEmbedded}
                   onChange={changeIsEmbedded}
+                />
+              </FormControl>
+              <FormControl display='flex' alignItems='center'>
+                <FormLabel htmlFor='isFinishPage' mb='0'>
+                  isFinishPage
+                </FormLabel>
+                <Switch
+                  id='isFinishPage'
+                  isChecked={isFinishPage}
+                  onChange={changeIsFinishPage}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>
+                  finishPageTimeOut (always convert to integer)
+                </FormLabel>
+                <Input
+                  type='text'
+                  value={finishPageTimeOut}
+                  onChange={changeFinishPageTimeOut}
                 />
               </FormControl>
               <Stack spacing={6}>
