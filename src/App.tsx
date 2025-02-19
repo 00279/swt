@@ -10,10 +10,17 @@ import {
   Center,
   Select,
   Divider,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
 } from '@chakra-ui/react';
 import './App.css';
 import { useUnit } from 'effector-react';
 import { model } from './model';
+import { NormalModeTab } from './normal-mode-tab';
+import { DestructiveModeTab } from './destructive-mode-tab/destructive-mode-tab';
 
 function App() {
   const changeOrderId = useUnit(model.changeOrderId);
@@ -37,66 +44,20 @@ function App() {
       <Center>
         <Card width='100%' maxWidth='500px'>
           <CardBody>
-            <Stack spacing={3}>
-              <FormControl>
-                <FormLabel>library version</FormLabel>
-                <Select value={libraryVersion} onChange={changeLibraryVersion}>
-                  <option value='035'>0.3.5</option>
-                  <option value='037'>0.3.7</option>
-                </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel>orderId</FormLabel>
-                <Input type='text' value={orderId} onChange={changeOrderId} />
-              </FormControl>
-              <FormControl>
-                <FormLabel>backUrl</FormLabel>
-                <Input type='text' value={backUrl} onChange={changeBackUrl} />
-              </FormControl>
-              <FormControl>
-                <FormLabel>target</FormLabel>
-                <Select value={target} onChange={changeTarget}>
-                  <option value='IFT'>IFT</option>
-                  <option value='UAT'>UAT</option>
-                </Select>
-              </FormControl>
-              <FormControl display='flex' alignItems='center'>
-                <FormLabel htmlFor='isEmbedded' mb='0'>
-                  isEmbedded
-                </FormLabel>
-                <Switch
-                  id='isEmbedded'
-                  isChecked={isEmbedded}
-                  onChange={changeIsEmbedded}
-                />
-              </FormControl>
-              <FormControl display='flex' alignItems='center'>
-                <FormLabel htmlFor='isFinishPage' mb='0'>
-                  isFinishPage
-                </FormLabel>
-                <Switch
-                  id='isFinishPage'
-                  isChecked={isFinishPage}
-                  onChange={changeIsFinishPage}
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>
-                  finishPageTimeOut (always convert to integer)
-                </FormLabel>
-                <Input
-                  type='text'
-                  value={finishPageTimeOut}
-                  onChange={changeFinishPageTimeOut}
-                />
-              </FormControl>
-              <Stack spacing={6}>
-                <Divider />
-                <Button colorScheme='green' onClick={pay}>
-                  Pay
-                </Button>
-              </Stack>
-            </Stack>
+            <Tabs>
+              <TabList>
+                <Tab>Normal mode</Tab>
+                <Tab>Destructive mode</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <NormalModeTab />
+                </TabPanel>
+                <TabPanel>
+                  <DestructiveModeTab />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </CardBody>
         </Card>
       </Center>
