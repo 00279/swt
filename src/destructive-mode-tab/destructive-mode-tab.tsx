@@ -1,6 +1,5 @@
 import {
   Card,
-  CardBody,
   FormControl,
   FormLabel,
   Switch,
@@ -11,14 +10,13 @@ import {
   Select,
   Divider,
   Heading,
-  CardHeader,
   StackDivider,
   Box,
-  Text,
 } from '@chakra-ui/react';
 import { useUnit } from 'effector-react';
 import { model } from './model';
-import { WillBeSent } from './will-be-sent';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export const DestructiveModeTab = () => {
   const {
@@ -39,9 +37,6 @@ export const DestructiveModeTab = () => {
     $isEmbeddedType,
     $isFinishPageType,
     setIsFinishPageType,
-    $isFinishPageFinal,
-    $finishPageTimeOutFinal,
-    $isEmbeddedFinal,
     $target,
     $libraryVersion,
     setIsEmbeddedType,
@@ -51,6 +46,7 @@ export const DestructiveModeTab = () => {
     setIsFinishPageEnabled,
     $finishPageTimeOutEnabled,
     setFinishPageTimeOutEnabled,
+    $widgetParametresJsonString,
     pay,
   } = useUnit(model);
 
@@ -85,7 +81,7 @@ export const DestructiveModeTab = () => {
           <Divider mt={6} mb={6} />
           <Stack divider={<StackDivider />} spacing={3}>
             <Box>
-              <Box>
+              <Box mb={6}>
                 <Heading size='md'>isEmbedded</Heading>
               </Box>
               <FormControl display='flex' alignItems='center'>
@@ -116,14 +112,10 @@ export const DestructiveModeTab = () => {
                   <option value='undefined'>undefined</option>
                 </Select>
               </FormControl>
-              <WillBeSent
-                isEnabled={$isEmbeddedEnabled}
-                final={$isEmbeddedFinal}
-              />
             </Box>
 
             <Box>
-              <Box>
+              <Box mb={6}>
                 <Heading size='md'>isFinishPage</Heading>
               </Box>
               <FormControl display='flex' alignItems='center'>
@@ -157,14 +149,10 @@ export const DestructiveModeTab = () => {
                   <option value='undefined'>undefined</option>
                 </Select>
               </FormControl>
-              <WillBeSent
-                isEnabled={$isFinishPageEnabled}
-                final={$isFinishPageFinal}
-              />
             </Box>
 
             <Box>
-              <Box>
+              <Box mb={6}>
                 <Heading size='md'>finishPageTimeOut</Heading>
               </Box>
               <FormControl display='flex' alignItems='center'>
@@ -198,12 +186,16 @@ export const DestructiveModeTab = () => {
                   <option value='undefined'>undefined</option>
                 </Select>
               </FormControl>
-              <WillBeSent
-                isEnabled={$finishPageTimeOutEnabled}
-                final={$finishPageTimeOutFinal}
-              />
             </Box>
           </Stack>
+
+          <Box mt={6}>
+            <Heading size='md'>will be sent as</Heading>
+            <SyntaxHighlighter language='javascript' style={oneDark}>
+              {$widgetParametresJsonString}
+            </SyntaxHighlighter>
+          </Box>
+
           <Divider mt={6} mb={6} />
           <Stack spacing={6}>
             <Button colorScheme='green' onClick={pay}>

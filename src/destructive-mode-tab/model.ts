@@ -3,9 +3,10 @@ import {
   WidgetParams as WidgetParams035,
 } from 'spay-0.3.5';
 import { createWidget as createWidget037 } from 'spay-0.3.7';
-import { createEffect, createEvent, sample } from 'effector';
+import { combine, createEffect, createEvent, sample } from 'effector';
 import { createInput } from '../lib/create-input';
 import { createInputs } from '../lib/create-inputs';
+import { stringify } from 'javascript-stringify';
 
 type TargetTypes = 'IFT' | 'UAT';
 type LibraryVersions = '035' | '037';
@@ -123,6 +124,57 @@ type WidgetParams = Omit<
   finishPageTimeOut?: number;
 };
 
+const $widgetParametres = combine(
+  {
+    orderId: $orderId,
+    backUrl: $backUrl,
+    isEmbedded: $isEmbeddedFinal,
+    isEmbeddedEnabled: $isEmbeddedEnabled,
+    isFinishPage: $isFinishPageFinal,
+    isFinishPageEnabled: $isFinishPageEnabled,
+    finishPageTimeOut: $finishPageTimeOutFinal,
+    finishPageTimeOutEnabled: $finishPageTimeOutEnabled,
+  },
+  ({
+    orderId,
+    backUrl,
+    isEmbedded,
+    isEmbeddedEnabled,
+    isFinishPage,
+    isFinishPageEnabled,
+    finishPageTimeOut,
+    finishPageTimeOutEnabled,
+  }) => {
+    const parameters: WidgetParams = {
+      bankInvoiceId: orderId,
+      backUrl,
+    };
+
+    if (isEmbeddedEnabled) {
+      parameters.isEmbedded = isEmbedded;
+    }
+
+    if (isFinishPageEnabled) {
+      parameters.isFinishPage = isFinishPage;
+    }
+
+    if (finishPageTimeOutEnabled) {
+      parameters.finishPageTimeOut = finishPageTimeOut;
+    }
+
+    return parameters;
+  }
+);
+
+export const $widgetParametresJsonString = combine(
+  $widgetParametres,
+  (widgetParametres) =>
+    stringify(widgetParametres, null, 2, {
+      maxDepth: 10,
+      references: true,
+    })
+);
+
 const openWidgetFx = createEffect(
   ({
     widget,
@@ -213,9 +265,6 @@ export const model = {
   $isEmbeddedType,
   $isFinishPageType,
   setIsFinishPageType,
-  $isFinishPageFinal,
-  $finishPageTimeOutFinal,
-  $isEmbeddedFinal,
   $target,
   $libraryVersion,
   setIsEmbeddedType,
@@ -225,5 +274,6 @@ export const model = {
   setIsFinishPageEnabled,
   $finishPageTimeOutEnabled,
   setFinishPageTimeOutEnabled,
+  $widgetParametresJsonString,
   pay,
 };
