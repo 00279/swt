@@ -3,13 +3,17 @@ import {
   WidgetParams as WidgetParams035,
 } from 'spay-0.3.5';
 import { createWidget as createWidget037 } from 'spay-0.3.7';
+import {
+  createWidget as createWidget041,
+  WidgetParams as WidgetParams041,
+} from 'spay-0.4.1';
 import { createEffect, createEvent, createStore, sample } from 'effector';
 import { ChangeEvent } from 'react';
 import { persist } from 'effector-storage/local';
 import { prepareTimeout } from './lib/prepare-timeout';
 
 type TargetTypes = 'IFT' | 'UAT';
-type LibraryVersions = '035' | '037';
+type LibraryVersions = '035' | '037' | '041';
 const changeOrderId = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeBackUrl = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeIsEmbedded = createEvent<ChangeEvent<HTMLInputElement>>();
@@ -78,6 +82,7 @@ sample({
 const widgetMap = {
   '035': createWidget035,
   '037': createWidget037,
+  '041': createWidget041,
 };
 
 const createWidgetFx = createEffect(
@@ -96,7 +101,8 @@ sample({
   target: createWidgetFx,
 });
 
-type SberpayWidgetParams = WidgetParams035 & { isEmbedded: boolean };
+type SberpayWidgetParams = WidgetParams035 &
+  WidgetParams041 & { isEmbedded: boolean };
 type SberpayWidget = {
   open: (
     params: SberpayWidgetParams

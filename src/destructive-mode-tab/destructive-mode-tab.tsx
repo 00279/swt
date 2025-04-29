@@ -60,6 +60,7 @@ export const DestructiveModeTab = () => {
               <Select value={$libraryVersion} onChange={changeLibraryVersion}>
                 <option value='035'>0.3.5</option>
                 <option value='037'>0.3.7</option>
+                <option value='041'>0.4.1</option>
               </Select>
             </FormControl>
             <FormControl>
