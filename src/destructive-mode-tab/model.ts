@@ -7,13 +7,17 @@ import {
   createWidget as createWidget041,
   WidgetParams as WidgetParams041,
 } from 'spay-0.4.1';
+import {
+  createWidget as createWidget051,
+  WidgetParams as WidgetParams051,
+} from 'spay-0.5.1';
 import { combine, createEffect, createEvent, sample } from 'effector';
 import { createInput } from '../lib/create-input';
 import { createInputs } from '../lib/create-inputs';
 import { stringify } from 'javascript-stringify';
 
 type TargetTypes = 'IFT' | 'UAT';
-type LibraryVersions = '035' | '037' | '041';
+type LibraryVersions = '035' | '037' | '041' | '051';
 
 const pay = createEvent();
 
@@ -83,6 +87,7 @@ const widgetMap = {
   '035': createWidget035,
   '037': createWidget037,
   '041': createWidget041,
+  '051': createWidget051,
 };
 
 const createWidgetFx = createEffect(
@@ -102,7 +107,7 @@ sample({
 });
 
 type SberpayWidgetParams = WidgetParams035 &
-  WidgetParams041 & { isEmbedded: boolean };
+  WidgetParams041 & { isEmbedded: boolean } & WidgetParams051;
 type SberpayWidget = {
   open: (
     params: SberpayWidgetParams

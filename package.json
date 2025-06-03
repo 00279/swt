@@ -24,6 +24,7 @@
     "spay-0.3.5": "npm:@sber-ecom-core/sberpay-widget@^0.3.5",
     "spay-0.3.7": "npm:@sber-ecom-core/sberpay-widget@^0.3.7",
     "spay-0.4.1": "npm:@sber-ecom-core/sberpay-widget@^0.4.1",
+    "spay-0.5.1": "npm:@sber-ecom-core/sberpay-widget@^0.5.1",
     "vitest": "^3.0.5"
   },
   "devDependencies": {
