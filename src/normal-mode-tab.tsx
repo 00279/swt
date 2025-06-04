@@ -44,7 +44,7 @@ export const NormalModeTab = () => {
                   <option value='035'>0.3.5</option>
                   <option value='037'>0.3.7</option>
                   <option value='041'>0.4.1</option>
-                  <option value='041'>0.5.1</option>
+                  <option value='051'>0.5.1</option>
                 </Select>
               </FormControl>
               <FormControl>

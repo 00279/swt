@@ -25,6 +25,8 @@ const changeIsFinishPage = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeFinishPageTimeOut = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeTarget = createEvent<ChangeEvent<HTMLSelectElement>>();
 const changeLibraryVersion = createEvent<ChangeEvent<HTMLSelectElement>>();
+const changeUserName = createEvent<ChangeEvent<HTMLInputElement>>();
+const changeBindingId = createEvent<ChangeEvent<HTMLInputElement>>();
 
 const pay = createEvent();
 
@@ -35,6 +37,8 @@ const $isFinishPage = createStore(true);
 const $finishPageTimeOut = createStore('');
 const $target = createStore<TargetTypes>('IFT');
 const $libraryVersion = createStore<LibraryVersions>('035');
+const $userName = createStore('');
+const $bindingId = createStore('');
 
 persist({ store: $target, key: 'target' });
 persist({ store: $isEmbedded, key: 'isEmbedded' });
@@ -51,6 +55,18 @@ sample({
   clock: changeBackUrl,
   fn: (event) => event.target.value,
   target: $backUrl,
+});
+
+sample({
+  clock: changeUserName,
+  fn: (event) => event.target.value,
+  target: $userName,
+});
+
+sample({
+  clock: changeBindingId,
+  fn: (event) => event.target.value,
+  target: $bindingId,
 });
 
 sample({
@@ -188,6 +204,8 @@ export const model = {
   changeFinishPageTimeOut,
   changeTarget,
   changeLibraryVersion,
+  changeUserName,
+  changeBindingId,
   $orderId,
   $backUrl,
   $isEmbedded,
@@ -195,5 +213,7 @@ export const model = {
   $finishPageTimeOut,
   $target,
   $libraryVersion,
+  $userName,
+  $bindingId,
   pay,
 };
