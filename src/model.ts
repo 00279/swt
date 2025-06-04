@@ -11,10 +11,18 @@ import {
   createWidget as createWidget051,
   WidgetParams as WidgetParams051,
 } from 'spay-0.5.1';
-import { createEffect, createEvent, createStore, sample } from 'effector';
+import {
+  attach,
+  createEffect,
+  createEvent,
+  createStore,
+  sample,
+  split,
+} from 'effector';
 import { ChangeEvent } from 'react';
 import { persist } from 'effector-storage/local';
 import { prepareTimeout } from './lib/prepare-timeout';
+import { createInput } from './lib/create-input';
 
 type TargetTypes = 'IFT' | 'UAT';
 type LibraryVersions = '035' | '037' | '041' | '051';
@@ -28,7 +36,13 @@ const changeLibraryVersion = createEvent<ChangeEvent<HTMLSelectElement>>();
 const changeUserName = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeBindingId = createEvent<ChangeEvent<HTMLInputElement>>();
 
+const [$method, changeMethod] = createInput({
+  name: 'method',
+  initialValue: 'open',
+});
+
 const pay = createEvent();
+const payByBinding = createEvent();
 
 const $orderId = createStore('');
 const $backUrl = createStore('');
@@ -106,7 +120,7 @@ const widgetMap = {
   '051': createWidget051,
 };
 
-const createWidgetFx = createEffect(
+const createWidgetBaseFx = createEffect(
   ({
     target,
     libraryVersion,
@@ -116,10 +130,18 @@ const createWidgetFx = createEffect(
   }) => widgetMap[libraryVersion](target)
 );
 
+const createWidgetByBindingFx = attach({
+  effect: createWidgetBaseFx,
+});
+
+const createWidgetFx = attach({
+  effect: createWidgetBaseFx,
+});
+
 sample({
-  clock: pay,
+  clock: payByBinding,
   source: { target: $target, libraryVersion: $libraryVersion },
-  target: createWidgetFx,
+  target: createWidgetByBindingFx,
 });
 
 type SberpayWidgetParams = WidgetParams035 &
@@ -173,6 +195,74 @@ const openWidgetFx = createEffect(
   }
 );
 
+const openWidgetByBindingFx = createEffect(
+  ({
+    widget,
+    orderId,
+    backUrl,
+    isEmbedded,
+    isFinishPage,
+    finishPageTimeOut,
+    bindingId,
+    userName,
+  }: OpenWidgetFxParams) => {
+    const parameters: WidgetParams = {
+      bankInvoiceId: orderId,
+      backUrl,
+      isEmbedded,
+      isFinishPage,
+    };
+
+    const timeOut = prepareTimeout(finishPageTimeOut);
+    if (Number.isInteger(timeOut)) {
+      parameters.finishPageTimeOut = timeOut;
+    }
+    if (userName) {
+      parameters.userName = userName;
+    }
+    if (bindingId) {
+      parameters.bindingId = bindingId;
+    }
+    console.table(parameters);
+    widget.openBoundCardPayment(parameters);
+  }
+);
+
+sample({
+  clock: createWidgetByBindingFx.doneData,
+  source: {
+    orderId: $orderId,
+    backUrl: $backUrl,
+    isEmbedded: $isEmbedded,
+    isFinishPage: $isFinishPage,
+    finishPageTimeOut: $finishPageTimeOut,
+    bindingId: $bindingId,
+    userName: $userName,
+  },
+  fn: (
+    {
+      orderId,
+      backUrl,
+      isEmbedded,
+      isFinishPage,
+      finishPageTimeOut,
+      bindingId,
+      userName,
+    },
+    widget
+  ) => ({
+    widget,
+    orderId,
+    backUrl,
+    isEmbedded,
+    isFinishPage,
+    finishPageTimeOut,
+    bindingId,
+    userName,
+  }),
+  target: openWidgetByBindingFx,
+});
+
 sample({
   clock: createWidgetFx.doneData,
   source: {
@@ -196,6 +286,20 @@ sample({
   target: openWidgetFx,
 });
 
+const startPay = sample({
+  clock: pay,
+  source: { target: $target, libraryVersion: $libraryVersion },
+});
+
+split({
+  source: startPay,
+  match: $method,
+  cases: {
+    open: createWidgetFx,
+    openBoundCardPayment: createWidgetByBindingFx,
+  },
+});
+
 export const model = {
   changeOrderId,
   changeBackUrl,
@@ -215,5 +319,8 @@ export const model = {
   $libraryVersion,
   $userName,
   $bindingId,
+  $method,
+  changeMethod,
   pay,
+  payByBinding,
 };

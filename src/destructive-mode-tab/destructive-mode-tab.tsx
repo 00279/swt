@@ -47,6 +47,12 @@ export const DestructiveModeTab = () => {
     $finishPageTimeOutEnabled,
     setFinishPageTimeOutEnabled,
     $widgetParametresJsonString,
+    $method,
+    changeMethod,
+    $userName,
+    changeUserName,
+    $bindingId,
+    changeBindingId,
     pay,
   } = useUnit(model);
 
@@ -55,6 +61,15 @@ export const DestructiveModeTab = () => {
       <Center>
         <Card width='100%' maxWidth='500px'>
           <Stack spacing={3}>
+            <FormControl>
+              <FormLabel>Payment method</FormLabel>
+              <Select value={$method} onChange={changeMethod}>
+                <option value='open'>open</option>
+                <option value='openBoundCardPayment'>
+                  openBoundCardPayment
+                </option>
+              </Select>
+            </FormControl>
             <FormControl>
               <FormLabel>library version</FormLabel>
               <Select value={$libraryVersion} onChange={changeLibraryVersion}>
@@ -72,6 +87,26 @@ export const DestructiveModeTab = () => {
               <FormLabel>backUrl</FormLabel>
               <Input type='text' value={$backUrl} onChange={changeBackUrl} />
             </FormControl>
+            {$method === 'openBoundCardPayment' ? (
+              <>
+                <FormControl>
+                  <FormLabel>userName</FormLabel>
+                  <Input
+                    type='text'
+                    value={$userName}
+                    onChange={changeUserName}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>bindingId</FormLabel>
+                  <Input
+                    type='text'
+                    value={$bindingId}
+                    onChange={changeBindingId}
+                  />
+                </FormControl>
+              </>
+            ) : null}
             <FormControl>
               <FormLabel>target</FormLabel>
               <Select value={$target} onChange={changeTarget}>

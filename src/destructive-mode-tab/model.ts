@@ -11,7 +11,14 @@ import {
   createWidget as createWidget051,
   WidgetParams as WidgetParams051,
 } from 'spay-0.5.1';
-import { combine, createEffect, createEvent, sample } from 'effector';
+import {
+  attach,
+  combine,
+  createEffect,
+  createEvent,
+  sample,
+  split,
+} from 'effector';
 import { createInput } from '../lib/create-input';
 import { createInputs } from '../lib/create-inputs';
 import { stringify } from 'javascript-stringify';
@@ -20,11 +27,27 @@ type TargetTypes = 'IFT' | 'UAT';
 type LibraryVersions = '035' | '037' | '041' | '051';
 
 const pay = createEvent();
+const payByBinding = createEvent();
 
 const [$libraryVersion, changeLibraryVersion] = createInput({
   name: 'libraryVersion',
   initialValue: '035',
   isPersisted: true,
+});
+
+const [$method, changeMethod] = createInput({
+  name: 'method',
+  initialValue: 'open',
+});
+
+const [$userName, changeUserName] = createInput({
+  name: 'userName',
+  initialValue: '',
+});
+
+const [$bindingId, changeBindingId] = createInput({
+  name: 'bindingId',
+  initialValue: '',
 });
 
 const [$orderId, changeOrderId] = createInput({
@@ -90,7 +113,7 @@ const widgetMap = {
   '051': createWidget051,
 };
 
-const createWidgetFx = createEffect(
+const createWidgetBaseFx = createEffect(
   ({
     target,
     libraryVersion,
@@ -99,6 +122,19 @@ const createWidgetFx = createEffect(
     libraryVersion: LibraryVersions;
   }) => widgetMap[libraryVersion](target)
 );
+
+const createWidgetByBindingFx = attach({
+  effect: createWidgetBaseFx,
+});
+const createWidgetFx = attach({
+  effect: createWidgetBaseFx,
+});
+
+sample({
+  clock: payByBinding,
+  source: { target: $target, libraryVersion: $libraryVersion },
+  target: createWidgetByBindingFx,
+});
 
 sample({
   clock: pay,
@@ -145,6 +181,8 @@ const $widgetParametres = combine(
     isFinishPageEnabled: $isFinishPageEnabled,
     finishPageTimeOut: $finishPageTimeOutFinal,
     finishPageTimeOutEnabled: $finishPageTimeOutEnabled,
+    userName: $userName,
+    bindingId: $bindingId,
   },
   ({
     orderId,
@@ -155,22 +193,27 @@ const $widgetParametres = combine(
     isFinishPageEnabled,
     finishPageTimeOut,
     finishPageTimeOutEnabled,
+    userName,
+    bindingId,
   }) => {
     const parameters: WidgetParams = {
       bankInvoiceId: orderId,
       backUrl,
     };
-
     if (isEmbeddedEnabled) {
       parameters.isEmbedded = isEmbedded;
     }
-
     if (isFinishPageEnabled) {
       parameters.isFinishPage = isFinishPage;
     }
-
     if (finishPageTimeOutEnabled) {
       parameters.finishPageTimeOut = finishPageTimeOut;
+    }
+    if (userName) {
+      parameters.userName = userName;
+    }
+    if (bindingId) {
+      parameters.bindingId = bindingId;
     }
 
     return parameters;
@@ -184,6 +227,46 @@ export const $widgetParametresJsonString = combine(
       maxDepth: 10,
       references: true,
     })
+);
+
+const openWidgetByBindingFx = createEffect(
+  ({
+    widget,
+    orderId,
+    backUrl,
+    isEmbedded,
+    isEmbeddedEnabled,
+    isFinishPage,
+    isFinishPageEnabled,
+    finishPageTimeOut,
+    finishPageTimeOutEnabled,
+    bindingId,
+    userName,
+  }: OpenWidgetFxParams) => {
+    const parameters: WidgetParams = {
+      bankInvoiceId: orderId,
+      backUrl,
+    };
+
+    if (isEmbeddedEnabled) {
+      parameters.isEmbedded = isEmbedded;
+    }
+    if (isFinishPageEnabled) {
+      parameters.isFinishPage = isFinishPage;
+    }
+    if (finishPageTimeOutEnabled) {
+      parameters.finishPageTimeOut = finishPageTimeOut;
+    }
+    if (userName) {
+      parameters.userName = userName;
+    }
+    if (bindingId) {
+      parameters.bindingId = bindingId;
+    }
+
+    console.table(parameters);
+    widget.openBoundCardPayment(parameters);
+  }
 );
 
 const openWidgetFx = createEffect(
@@ -219,6 +302,50 @@ const openWidgetFx = createEffect(
     widget.open(parameters);
   }
 );
+
+sample({
+  clock: createWidgetByBindingFx.doneData,
+  source: {
+    orderId: $orderId,
+    backUrl: $backUrl,
+    isEmbedded: $isEmbeddedFinal,
+    isEmbeddedEnabled: $isEmbeddedEnabled,
+    isFinishPage: $isFinishPageFinal,
+    isFinishPageEnabled: $isFinishPageEnabled,
+    finishPageTimeOut: $finishPageTimeOutFinal,
+    finishPageTimeOutEnabled: $finishPageTimeOutEnabled,
+    userName: $userName,
+    bindingId: $bindingId,
+  },
+  fn: (
+    {
+      orderId,
+      backUrl,
+      isEmbedded,
+      isEmbeddedEnabled,
+      isFinishPage,
+      isFinishPageEnabled,
+      finishPageTimeOut,
+      finishPageTimeOutEnabled,
+      userName,
+      bindingId,
+    },
+    widget
+  ) => ({
+    widget,
+    orderId,
+    backUrl,
+    isEmbedded,
+    isEmbeddedEnabled,
+    isFinishPage,
+    isFinishPageEnabled,
+    finishPageTimeOut,
+    finishPageTimeOutEnabled,
+    userName,
+    bindingId,
+  }),
+  target: openWidgetByBindingFx,
+});
 
 sample({
   clock: createWidgetFx.doneData,
@@ -258,6 +385,20 @@ sample({
   target: openWidgetFx,
 });
 
+const startPay = sample({
+  clock: pay,
+  source: { target: $target, libraryVersion: $libraryVersion },
+});
+
+split({
+  source: startPay,
+  match: $method,
+  cases: {
+    open: createWidgetFx,
+    openBoundCardPayment: createWidgetByBindingFx,
+  },
+});
+
 export const model = {
   changeOrderId,
   changeBackUrl,
@@ -286,5 +427,11 @@ export const model = {
   $finishPageTimeOutEnabled,
   setFinishPageTimeOutEnabled,
   $widgetParametresJsonString,
+  $userName,
+  changeUserName,
+  $bindingId,
+  changeBindingId,
+  $method,
+  changeMethod,
   pay,
 };
