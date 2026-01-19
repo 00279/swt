@@ -34,8 +34,16 @@ export const NormalModeTab = () => {
   const $method = useUnit(model.$method);
   const changeMethod = useUnit(model.changeMethod);
 
-  const { $userName, $bindingId, changeUserName, changeBindingId } =
-    useUnit(model);
+  const {
+    $userName,
+    $bindingId,
+    changeUserName,
+    changeBindingId,
+    $phone,
+    changePhone,
+    $isPhoneChangeDisabled,
+    changeIsPhoneChangeDisabled,
+  } = useUnit(model);
 
   return (
     <>
@@ -125,6 +133,20 @@ export const NormalModeTab = () => {
                 value={finishPageTimeOut}
                 onChange={changeFinishPageTimeOut}
               />
+            </FormControl>
+            <FormControl display='flex' alignItems='center'>
+              <FormLabel htmlFor='isPhoneChangeDisabled' mb='0'>
+                isPhoneChangeDisabled
+              </FormLabel>
+              <Switch
+                id='isPhoneChangeDisabled'
+                isChecked={$isPhoneChangeDisabled}
+                onChange={changeIsPhoneChangeDisabled}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>phone</FormLabel>
+              <Input type='text' value={$phone} onChange={changePhone} />
             </FormControl>
             <Stack spacing={6}>
               <Divider />

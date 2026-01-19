@@ -22,7 +22,8 @@ import {
 import { ChangeEvent } from 'react';
 import { persist } from 'effector-storage/local';
 import { prepareTimeout } from './lib/prepare-timeout';
-import { createInput } from './lib/create-input';
+import { createInput, createSwitch } from './lib/create-input';
+import { p } from 'framer-motion/client';
 
 type TargetTypes = 'IFT' | 'UAT';
 type LibraryVersions = '035' | '037' | '041' | '051';
@@ -39,6 +40,16 @@ const changeBindingId = createEvent<ChangeEvent<HTMLInputElement>>();
 const [$method, changeMethod] = createInput({
   name: 'method',
   initialValue: 'open',
+});
+
+const [$phone, changePhone] = createInput({
+  name: 'phone',
+  initialValue: '',
+});
+
+const [$isPhoneChangeDisabled, changeIsPhoneChangeDisabled] = createSwitch({
+  name: 'isPhoneChangeDisabled',
+  initialValue: false,
 });
 
 const pay = createEvent();
@@ -127,7 +138,7 @@ const createWidgetBaseFx = createEffect(
   }: {
     target: TargetTypes;
     libraryVersion: LibraryVersions;
-  }) => widgetMap[libraryVersion](target)
+  }) => widgetMap[libraryVersion](target),
 );
 
 const createWidgetByBindingFx = attach({
@@ -148,7 +159,7 @@ type SberpayWidgetParams = WidgetParams035 &
   WidgetParams041 & { isEmbedded: boolean } & WidgetParams051;
 type SberpayWidget = {
   open: (
-    params: SberpayWidgetParams
+    params: SberpayWidgetParams,
   ) => Promise<'success' | 'return' | 'cancel'>;
   close?: () => void;
 };
@@ -178,21 +189,27 @@ const openWidgetFx = createEffect(
     isEmbedded,
     isFinishPage,
     finishPageTimeOut,
+    phone,
+    isPhoneChangeDisabled,
   }: OpenWidgetFxParams) => {
     const parameters: WidgetParams = {
       bankInvoiceId: orderId,
       backUrl,
       isEmbedded,
       isFinishPage,
+      isPhoneChangeDisabled,
     };
 
     const timeOut = prepareTimeout(finishPageTimeOut);
     if (Number.isInteger(timeOut)) {
       parameters.finishPageTimeOut = timeOut;
     }
+    if (phone) {
+      parameters.phone = phone;
+    }
     console.table(parameters);
     widget.open(parameters);
-  }
+  },
 );
 
 const openWidgetByBindingFx = createEffect(
@@ -205,12 +222,16 @@ const openWidgetByBindingFx = createEffect(
     finishPageTimeOut,
     bindingId,
     userName,
+    phone,
+    isPhoneChangeDisabled,
   }: OpenWidgetFxParams) => {
     const parameters: WidgetParams = {
       bankInvoiceId: orderId,
       backUrl,
       isEmbedded,
       isFinishPage,
+      phone,
+      isPhoneChangeDisabled,
     };
 
     const timeOut = prepareTimeout(finishPageTimeOut);
@@ -223,9 +244,12 @@ const openWidgetByBindingFx = createEffect(
     if (bindingId) {
       parameters.bindingId = bindingId;
     }
+    if (phone) {
+      parameters.phone = phone;
+    }
     console.table(parameters);
     widget.openBoundCardPayment(parameters);
-  }
+  },
 );
 
 sample({
@@ -238,6 +262,8 @@ sample({
     finishPageTimeOut: $finishPageTimeOut,
     bindingId: $bindingId,
     userName: $userName,
+    phone: $phone,
+    isPhoneChangeDisabled: $isPhoneChangeDisabled,
   },
   fn: (
     {
@@ -248,8 +274,10 @@ sample({
       finishPageTimeOut,
       bindingId,
       userName,
+      phone,
+      isPhoneChangeDisabled,
     },
-    widget
+    widget,
   ) => ({
     widget,
     orderId,
@@ -259,6 +287,8 @@ sample({
     finishPageTimeOut,
     bindingId,
     userName,
+    phone,
+    isPhoneChangeDisabled,
   }),
   target: openWidgetByBindingFx,
 });
@@ -271,10 +301,20 @@ sample({
     isEmbedded: $isEmbedded,
     isFinishPage: $isFinishPage,
     finishPageTimeOut: $finishPageTimeOut,
+    phone: $phone,
+    isPhoneChangeDisabled: $isPhoneChangeDisabled,
   },
   fn: (
-    { orderId, backUrl, isEmbedded, isFinishPage, finishPageTimeOut },
-    widget
+    {
+      orderId,
+      backUrl,
+      isEmbedded,
+      isFinishPage,
+      finishPageTimeOut,
+      phone,
+      isPhoneChangeDisabled,
+    },
+    widget,
   ) => ({
     widget,
     orderId,
@@ -282,6 +322,8 @@ sample({
     isEmbedded,
     isFinishPage,
     finishPageTimeOut,
+    phone,
+    isPhoneChangeDisabled,
   }),
   target: openWidgetFx,
 });
@@ -320,6 +362,10 @@ export const model = {
   $userName,
   $bindingId,
   $method,
+  $phone,
+  changePhone,
+  $isPhoneChangeDisabled,
+  changeIsPhoneChangeDisabled,
   changeMethod,
   pay,
   payByBinding,
