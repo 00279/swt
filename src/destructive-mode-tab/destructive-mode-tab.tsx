@@ -112,6 +112,7 @@ export const DestructiveModeTab = () => {
               <Select value={$target} onChange={changeTarget}>
                 <option value='IFT'>IFT</option>
                 <option value='UAT'>UAT</option>
+                <option value='PRODUCTION'>PRODUCTION</option>
               </Select>
             </FormControl>
           </Stack>

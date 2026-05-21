@@ -23,7 +23,7 @@ import { createInput } from '../lib/create-input';
 import { createInputs } from '../lib/create-inputs';
 import { stringify } from 'javascript-stringify';
 
-type TargetTypes = 'IFT' | 'UAT';
+type TargetTypes = 'IFT' | 'UAT' | 'PRODUCTION';
 type LibraryVersions = '035' | '037' | '041' | '051';
 
 const pay = createEvent();

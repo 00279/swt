@@ -25,7 +25,7 @@ import { prepareTimeout } from './lib/prepare-timeout';
 import { createInput, createSwitch } from './lib/create-input';
 import { p } from 'framer-motion/client';
 
-type TargetTypes = 'IFT' | 'UAT';
+type TargetTypes = 'IFT' | 'UAT' | 'PRODUCTION';
 type LibraryVersions = '035' | '037' | '041' | '051';
 const changeOrderId = createEvent<ChangeEvent<HTMLInputElement>>();
 const changeBackUrl = createEvent<ChangeEvent<HTMLInputElement>>();
